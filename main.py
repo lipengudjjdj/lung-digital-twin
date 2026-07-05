@@ -222,8 +222,8 @@ class LungDigitalTwin:
 
 | 指标 | 模型值 | 临床参考 |
 |------|--------|----------|
-| 正常肺顺应性 | {self.respiratory_model.compute_compliance(0.05):.3f} L/cmH₂O | 0.2 L/cmH₂O |
-| IPF肺顺应性 (E=0.8) | {self.respiratory_model.compute_compliance(0.8):.3f} L/cmH₂O | 0.05-0.10 L/cmH₂O |
+| 正常肺顺应性 | {self.respiratory_model.compute_compliance(0.05):.3f} L/cmH2O | 0.2 L/cmH2O |
+| IPF肺顺应性 (E=0.8) | {self.respiratory_model.compute_compliance(0.8):.3f} L/cmH2O | 0.05-0.10 L/cmH2O |
 | 刚度增加比 (E=0.8) | {0.2/self.respiratory_model.compute_compliance(0.8):.1f}x | 6.4x |
 
 ## 三、药物干预效果
