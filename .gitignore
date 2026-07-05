@@ -1,0 +1,5 @@
+output_figures/
+__pycache__/
+*.pyc
+.DS_Store
+temp_*.png
