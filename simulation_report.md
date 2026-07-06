@@ -1,6 +1,6 @@
 # 肺数字孪生模型 — 仿真报告 (v2.0)
 
-> 生成时间: 2026-07-06 22:57
+> 生成时间: 2026-07-06 23:17
 > 本项目代码由AI辅助生成，已标注
 
 ## 一、模型概述
@@ -46,6 +46,8 @@
 | 苦参 | 0.093 | 0.130 | 28.9% |
 | 尼达尼布 | 0.079 | 0.107 | 39.8% |
 | 吡非尼酮 | 0.085 | 0.118 | 34.9% |
+| Rentosertib (TNIK抑制剂) | 0.074 | 0.097 | 43.3% |
+| Nerandomilast (PDE4B抑制剂) | 0.089 | 0.122 | 32.2% |
 | huangqi+danshen | 0.062 | 0.076 | 52.8% |
 | huangqi+gusuibu | 0.064 | 0.080 | 51.3% |
 | chuanxiong+danshen | 0.063 | 0.078 | 51.7% |
@@ -62,14 +64,22 @@
 ## 五、参考文献
 
 [1] Suki B, Bates JHT. Mathematical Modeling of the Healthy and Diseased Lung, Springer 2024, Ch.8
-[2] Zhou X, et al. Digital twins of ex vivo human lungs. Nat Biotechnol 2026
+[2] Zhou X, et al. Digital twins of ex vivo human lungs enable accurate evaluation of therapeutic efficacy. Nat Biotechnol 2026 [Ref.2]
 [7] Martinez FJ, et al. Idiopathic pulmonary fibrosis. Nat Rev Dis Primers 2017;3:17074
 [8] Ye Z & Hu Y. TGF-β1 in idiopathic pulmonary fibrosis. Int J Mol Med 2021;48:132
 [9] Zhao R, et al. Sustained amphiregulin expression drives progressive fibrosis. Cell Stem Cell 2024
-[10] Pulmonary-Targeted NPs for IPF Therapy. Advanced Science 2025
+[10] Pulmonary-Targeted NPs for IPF Therapy. Advanced Science 2025 — YAP/TAZ恶性循环与机械转导
+[11] Nature空间转录组学 2025 — Csmd1+分泌型/Cd248+修复型成纤维细胞亚型
+[12] 左为团队 Science Advances 2026 — TGF-β梯度双角色与iBMP7工程化基底细胞
 [13] Berne & Levy Physiology, 8th Edition (Koeppen & Stanton)
 [14] West's Respiratory Physiology: The Essentials, 10th Edition
 [15] Richeldi L, et al. INPULSIS Trial. NEJM 2014;370:2071-2082
+[16] Ren Y, et al. Rentosertib (TNIK inhibitor) in IPF: GENESIS-IPF IIa trial. Nature Medicine 2025
+[17] Nerandomilast (BI 1015550, PDE4B inhibitor) FIBRONEER-IPF Phase 3, 2025
+[18] Nintedanib Population PK: Eur J Clin Pharmacol 2018; 1191 patients
+[19] Pirfenidone PK: J Clin Pharmacol 2007; 48 healthy Chinese volunteers
+[20] Brillet PY, et al. Personalized lung poromechanical modeling for fibrotic ILD. Expert Rev Med Devices 2025
+[21] 黄芪甲苷(AS-IV)抗肺纤维化: Network Pharmacology + 实验验证, Integrating Network Pharmacology 2024
 
 ## 六、声明
 

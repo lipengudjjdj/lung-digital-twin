@@ -1,15 +1,20 @@
 """
-肺数字孪生模型 — 主程序 (v2.0)
+肺数字孪生模型 — 主程序 (v3.0)
 =================================
-整合纤维化进程ODE模型、呼吸力学模型、药物干预模块、
-参数敏感性分析、FVC仿真、论文草稿生成、高级可视化，
-提供完整的数字孪生仿真和交互式界面。
+v3.0新增（基于最新文献）:
+  1. YAP/TAZ机械转导恶性循环 (Advanced Science 2025)
+  2. 成纤维细胞亚型动力学 Csmd1+/Cd248+ (Nature空间转录组学)
+  3. TGF-β梯度双角色 (Science Advances 2026, 左为团队)
+  4. 药代动力学PK-PD联合建模 (Eur J Clin Pharmacol 2018等)
+  5. Rentosertib (TNIK抑制剂) / Nerandomilast (PDE4B抑制剂) 新药数据
+  6. Zhou et al. Nat Biotechnol 2026 数字孪生架构参考
 
 用法:
   python main.py               # 运行完整仿真并生成所有图表
   python main.py --gui         # 启动Gradio交互界面
   python main.py --sensitivity # 仅运行敏感性分析
   python main.py --paper       # 仅生成论文草稿
+  python main.py --extended    # 运行7变量扩展模型
 
 所有参数来源见 config.py 和《肺数字孪生_参数数据库与文献来源.md》
 
@@ -38,10 +43,13 @@ from sensitivity_analysis import SensitivityAnalysis
 from fvc_simulator import FVCSimulator
 from paper_generator import PaperGenerator
 from advanced_viz import AdvancedVisualization
+# v3.0新增模块
+from mechanotransduction_model import ExtendedFibrosisModel
+from pk_pd_model import PharmacokineticModel, PKPDCoupledModel
 
 
 class LungDigitalTwin:
-    """肺数字孪生模型 — 顶层整合类 (v2.0)"""
+    """肺数字孪生模型 — 顶层整合类 (v3.0)"""
 
     def __init__(self):
         self.fibrosis_model = FibrosisODEModel()
@@ -51,6 +59,11 @@ class LungDigitalTwin:
         self.fvc_sim = FVCSimulator()
         self.paper_gen = PaperGenerator()
         self.adv_viz = AdvancedVisualization()
+        # v3.0新增
+        self.extended_model = ExtendedFibrosisModel()
+        self.pk_pd = {}
+        for drug_id in ["nintedanib", "pirfenidone", "rentosertib", "nerandomilast"]:
+            self.pk_pd[drug_id] = PKPDCoupledModel(drug_id)
         self.results = {}
 
     def run_full_simulation(self, t_span=(0, 10), drug_start_time=None):
@@ -70,18 +83,19 @@ class LungDigitalTwin:
             所有仿真结果
         """
         print("=" * 60)
-        print("  肺数字孪生模型 (Lung Digital Twin) v2.0 — 仿真启动")
+        print("  肺数字孪生模型 (Lung Digital Twin) v3.0 — 仿真启动")
         print("  所有参数来自已发表文献，详见参数数据库文档")
+        print("  v3.0新增: YAP/TAZ机械转导+成纤维细胞亚型+PK-PD")
         print("=" * 60)
 
         # 1. 无干预的纤维化进程
-        print("\n[1/6] 模拟无干预纤维化进程...")
+        print("\n[1/9] 模拟无干预纤维化进程...")
         self.fibrosis_model.D = 0.0
         result_no_drug = self.fibrosis_model.simulate(t_span=t_span)
         self.results["no_drug"] = result_no_drug
 
-        # 2. 各药物干预仿真 (含新增中药: 骨碎补、川芎、麦冬、苦参)
-        print("[2/6] 模拟药物干预效果...")
+        # 2. 各药物干预仿真 (含v3.0新增Rentosertib/Nerandomilast)
+        print("[2/9] 模拟药物干预效果...")
         drug_ids = list(self.drug_intervention.drugs.keys())
         for drug_id in drug_ids:
             drug = self.drug_intervention.drugs[drug_id]
@@ -94,7 +108,7 @@ class LungDigitalTwin:
             print(f"  [OK] {drug['name_cn']} 仿真完成")
 
         # 3. 联合用药仿真
-        print("[3/6] 模拟联合用药...")
+        print("[3/9] 模拟联合用药...")
         combo_groups = [
             (["huangqi", "danshen"], "黄芪+丹参"),
             (["huangqi", "gusuibu"], "黄芪+骨碎补"),
@@ -112,13 +126,13 @@ class LungDigitalTwin:
             print(f"  [OK] {combo_name} 联合仿真完成")
 
         # 4. 呼吸力学验证
-        print("[4/6] 呼吸力学模型验证...")
+        print("[4/9] 呼吸力学模型验证...")
         resp_validation = self.respiratory_model.validate_model()
         for k, v in resp_validation.items():
             print(f"  {k}: {v}")
 
         # 5. FVC仿真
-        print("[5/6] FVC仿真与临床数据对比...")
+        print("[5/9] FVC仿真与临床数据对比...")
         for drug_id in [None, "nintedanib", "pirfenidone", "huangqi", "danshen"]:
             fvc_result = self.fvc_sim.simulate_fvc(drug_id=drug_id, t_span=t_span[:2] if len(t_span) >= 2 else (0, 4))
             key = f"fvc_{drug_id or 'placebo'}"
@@ -127,13 +141,48 @@ class LungDigitalTwin:
             print(f"  {name}: FVC下降率 = {fvc_result['fvc_decline_rate']:.1f} mL/yr")
 
         # 6. ODE模型验证
-        print("[6/6] ODE模型验证...")
+        print("[6/9] ODE模型验证...")
         ode_validation = self.fibrosis_model.validate_against_clinical(result_no_drug)
         print(f"  3.5年ECM密度: {ode_validation['E_at_3yr']:.3f}")
         print(f"  ECM增长倍数: {ode_validation['E_ratio_to_baseline']:.1f}x (临床参考: {IPF_PATHOLOGY['collagen_increase_factor']}x)")
         print(f"  稳态ECM: {ode_validation['E_steady_state']:.3f}")
         if ode_validation["time_to_50pct_fibrosis"]:
             print(f"  达50%纤维化: {ode_validation['time_to_50pct_fibrosis']:.2f}年")
+
+        # === v3.0新增 ===
+        # 7. 7变量扩展模型 (YAP/TAZ + 成纤维细胞亚型)
+        print("[7/9] 扩展模型仿真 (YAP/TAZ + 成纤维细胞亚型)...")
+        ext_result = self.extended_model.simulate(t_span=t_span)
+        self.results["extended_no_drug"] = ext_result
+        t_ext = ext_result["t"]
+        idx_3yr = np.argmin(np.abs(t_ext - 3.5))
+        print(f"  ECM增长: {ext_result['E'][idx_3yr]/ext_result['E'][0]:.1f}x")
+        print(f"  YAP活性: {ext_result['Y'][idx_3yr]:.3f}")
+        print(f"  分泌型/修复型比: {ext_result['F_s'][idx_3yr]/max(ext_result['F_r'][idx_3yr],0.001):.2f}")
+
+        # 8. PK-PD耦合仿真 (新药)
+        print("[8/9] PK-PD耦合仿真...")
+        for drug_id in ["nintedanib", "pirfenidone", "rentosertib", "nerandomilast"]:
+            base_model = FibrosisODEModel()
+            pkpd_result = self.pk_pd[drug_id].simulate_pkpd_fibrosis(
+                base_model, t_years=t_span[1], drug_start_year=drug_start_time or 2.0
+            )
+            self.results[f"pkpd_{drug_id}"] = pkpd_result
+            print(f"  [OK] {drug_id} PK-PD仿真完成 (avg PD effect: {pkpd_result['avg_pd_effect']:.3f})")
+
+        # 9. 扩展模型+药物干预
+        print("[9/9] 扩展模型+药物干预仿真...")
+        for drug_id in ["nintedanib", "rentosertib", "nerandomilast"]:
+            drug_changes = self.drug_intervention.get_drug_params(drug_id)
+            ext_model_drug = ExtendedFibrosisModel()
+            # 简化: 使用PK-PD稳态效应修改参数
+            D_drug = drug_changes.get("gamma_inhibit", 0) * 0.6
+            ext_model_drug.set_drug_intervention(D_drug)
+            ext_drug_result = ext_model_drug.simulate(
+                t_span=t_span, drug_start_time=drug_start_time or 2.0
+            )
+            self.results[f"extended_{drug_id}"] = ext_drug_result
+            print(f"  [OK] 扩展模型+{drug_id} 完成")
 
         return self.results
 
@@ -480,6 +529,7 @@ def launch_gradio():
             "当归": "danggui", "白术": "baizhu", "骨碎补": "gusuibu",
             "川芎": "chuanxiong", "麦冬": "maitong", "苦参": "kushen",
             "尼达尼布": "nintedanib", "吡非尼酮": "pirfenidone",
+            "Rentosertib": "rentosertib", "Nerandomilast": "nerandomilast",
         }
 
         drug_id = drug_id_map.get(drug_name, "huangqi")
@@ -525,10 +575,10 @@ def launch_gradio():
         return "temp_fvc.png"
 
     # 构建界面
-    with gr.Blocks(title="肺数字孪生模型 v2.0", theme=gr.themes.Soft()) as demo:
-        gr.Markdown("# 肺数字孪生模型 (Lung Digital Twin) v2.0")
+    with gr.Blocks(title="肺数字孪生模型 v3.0", theme=gr.themes.Soft()) as demo:
+        gr.Markdown("# 肺数字孪生模型 (Lung Digital Twin) v3.0")
         gr.Markdown("基于真实文献参数的肺纤维化进程仿真与药物干预评估")
-        gr.Markdown("> 本项目由AI辅助生成 | 所有参数来自已发表文献")
+        gr.Markdown("> v3.0: YAP/TAZ机械转导 + PK-PD联合建模 + 新药 | AI辅助生成")
 
         with gr.Tab("纤维化进程"):
             with gr.Row():
@@ -549,7 +599,8 @@ def launch_gradio():
                 with gr.Column():
                     drug_name = gr.Dropdown(
                         choices=["黄芪", "丹参", "甘草", "当归", "白术", "骨碎补",
-                                 "川芎", "麦冬", "苦参", "尼达尼布", "吡非尼酮"],
+                                 "川芎", "麦冬", "苦参", "尼达尼布", "吡非尼酮",
+                                 "Rentosertib", "Nerandomilast"],
                         value="黄芪", label="选择药物"
                     )
                     dose = gr.Slider(0.1, 1.0, value=1.0, step=0.1, label="剂量水平")
@@ -599,6 +650,15 @@ if __name__ == "__main__":
     elif "--paper" in sys.argv:
         twin = LungDigitalTwin()
         twin.generate_paper()
+    elif "--extended" in sys.argv:
+        # 仅运行7变量扩展模型
+        ext = ExtendedFibrosisModel()
+        result = ext.simulate()
+        print("\n7变量扩展模型结果:")
+        t = result["t"]
+        idx_3yr = np.argmin(np.abs(t - 3.5))
+        for key in ["F", "E", "T", "I", "Y", "F_s", "F_r"]:
+            print(f"  {key}(3.5yr) = {result[key][idx_3yr]:.3f}")
     else:
         # 运行完整仿真
         twin = LungDigitalTwin()
