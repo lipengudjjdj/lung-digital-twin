@@ -63,35 +63,48 @@ NORMAL_LUNG = {
 
 IPF_PATHOLOGY = {
     # --- 流行病学 ---
-    "incidence": "3-5/10万",   # 发病率
-                                # 来源: IPF流行病学数据
+    "incidence": "0.09-1.30/万人年", # 发病率
+                                 # 来源: Maher TM, et al. Eur Respir Rev 2021; 亦见中国IPF流行病学综述
 
-    "median_survival_years": 3.5,  # 中位生存期 (年)
-                                    # 来源: Martinez et al. Nat Rev Dis Primers 2017 [Ref.7]
+    "median_survival_years": 3.8,  # 中位生存期 (年)
+                                     # 来源: IPF诊断后中位生存3-5年 [Ref.7]
+                                     # 美国≥65岁人群3.8年: Raghu G, et al. Nat Rev Dis Primers 2022
 
     # --- 肺功能下降 ---
-    "FVC_decline_per_year": 200.0, # FVC年下降率 (mL/年), 未经治疗
-                                    # 来源: INPULSIS试验 [Ref.15]
+    "FVC_decline_per_year": 207.3, # FVC年下降率 (mL/年), 未经治疗(安慰剂组)
+                                     # 来源: INPULSIS-2安慰剂组 [Ref.15]
+                                     # INPULSIS-1安慰剂组为239.9 mL/年
+                                     # 综合估计: 约200-240 mL/年
 
-    "FVC_decline_nintedanib": 114.1, # 尼达尼布治疗组FVC年下降率 (mL/年)
-                                      # 来源: INPULSIS试验 [Ref.15]
+    "FVC_decline_nintedanib": 114.7, # 尼达尼布治疗组FVC年下降率 (mL/年)
+                                       # 来源: INPULSIS-1 [Ref.15]
+                                       # INPULSIS-2为113.6 mL/年
 
     # --- 力学改变 ---
     "stiffness_increase_factor": 6.4, # IPF肺组织刚度升高倍数
-                                       # 来源: Advanced Science 2025 [Ref.10]
+                                       # 来源: Suki & Bates 2024 [Ref.1] Ch.8
+                                       # 正常肺~1 kPa, IPF纤维化区~6-7 kPa
+                                       # 亦见: Liu F, et al. Am J Physiol Lung Cell Mol Physiol 2016
+                                       # 注意: 刚度值取决于测量方法(原子力显微镜/压痕测试)
 
     "C_L_IPF": 0.075,          # IPF肺顺应性 (L/cmH2O), 约0.05-0.1取中值
-                                # 来源: Suki & Bates 2024 [Ref.1]
+                                 # 来源: Suki & Bates 2024 [Ref.1]
+                                 # 亦见: Respir Care 2014; 59(7):1056-63 (IPF Cst 0.05-0.10)
 
     "collagen_increase_factor": 2.5, # 胶原含量增加倍数
-                                      # 来源: Suki & Bates 2024 [Ref.1]
+                                       # 来源: Suki & Bates 2024 [Ref.1] Ch.5
+                                       # IPF肺组织羟脯氨酸含量约为正常2-3倍
+                                       # 亦见: Selman M, et al. Ann Intern Med 2001;134:136-51
 
     # --- 生物标志物 ---
     "TGF_beta_increase_factor": 4.0, # TGF-β1升高倍数 (3-5倍取中值)
-                                      # 来源: Ye & Hu, Int J Mol Med 2021 [Ref.8]
+                                       # 来源: Ye & Hu, Int J Mol Med 2021;48:132 [Ref.8]
+                                       # 亦见: Ask K, et al. Am J Respir Cell Mol Biol 2008
+                                       # BALF和肺组织中TGF-β1均显著升高
 
     "TLC_percent_predicted": 70.0, # TLC占预计值百分比 (%)，限制性障碍
-                                    # 来源: IPF诊断标准 (<80%)
+                                     # 来源: ATS/ERS/JRS/ALAT IPF诊断指南 2018
+                                     # 限制性通气障碍: TLC < 80%预计值
 }
 
 # ============================================================
@@ -317,13 +330,16 @@ DRUG_INTERVENTION = {
     "pirfenidone": {
         "name_cn": "吡非尼酮",
         "frequency": None,
-        "targets": ["TGFB1", "PDGF"],
-        "pathways": ["TGF-β/Smad"],
+        "targets": ["TGFB1", "PDGF", "CCL2", "CCL12"],
+        "pathways": ["TGF-β/Smad", "NF-κB"],
         "alpha_inhibit": 0.35,
         "gamma_inhibit": 0.25,
         "sigma_inhibit": 0.15,
-        "FVC_decline_treated": 131.2,  # mL/年 (ASCEND试验)
-        "ref": "ASCEND Trial, King et al. NEJM 2014"
+        # ASCEND试验主要终点为FVC%变化，非绝对mL值
+        # 吡非尼酮显著减少FVC下降或死亡风险 (p<0.001)
+        # 合并分析CAPACITY+ASCEND: FVC下降约131-170 mL/年(安慰剂)
+        "FVC_decline_treated": None,  # ASCEND以%pred为主要终点, 非绝对mL
+        "ref": "ASCEND Trial, King TE Jr et al. NEJM 2014;370:2083-2092 [Ref.15b]"
     },
     # --- 新增抗纤维化药物 (2025-2026最新临床数据) ---
     "rentosertib": {
@@ -339,7 +355,7 @@ DRUG_INTERVENTION = {
         "phase": "IIa",
         "n_patients": 71,
         "dose_schedule": "60mg QD",
-        "ref": "GENESIS-IPF IIa (NCT05938920), Nature Medicine 2025 [Ref.16]"
+        "ref": "Ren Y, et al. Nature Medicine 2025; GENESIS-IPF IIa (NCT05938920) [Ref.16]"
     },
     "nerandomilast": {
         "name_cn": "Nerandomilast (PDE4B抑制剂)",
@@ -351,8 +367,9 @@ DRUG_INTERVENTION = {
         "eta_inhibit": 0.40,         # 主要抗炎作用(PDE4B靶向)
         "FVC_change_52wk": -114.7,   # 52周FVC变化-114.7mL (vs 安慰剂-183.5mL)
         "phase": "Phase 3",
+        "n_patients": 1177,
         "dose_schedule": "18mg BID",
-        "ref": "FIBRONEER-IPF Phase 3, 2025 [Ref.17]"
+        "ref": "FIBRONEER-IPF Phase 3, NEJM 2025; NCT05321069 [Ref.17]"
     },
 }
 
@@ -379,21 +396,22 @@ COUPLING = {
 # ============================================================
 
 REFERENCES = {
-    1:  "Suki B, Bates JHT. Mathematical Modeling of the Healthy and Diseased Lung, Springer 2024, Ch.8",
-    2:  "Zhou X, et al. Digital twins of ex vivo human lungs enable accurate evaluation of therapeutic efficacy. Nat Biotechnol 2026 [Ref.2]",
-    7:  "Martinez FJ, et al. Idiopathic pulmonary fibrosis. Nat Rev Dis Primers 2017;3:17074",
-    8:  "Ye Z & Hu Y. TGF-β1 in idiopathic pulmonary fibrosis. Int J Mol Med 2021;48:132",
-    9:  "Zhao R, et al. Sustained amphiregulin expression drives progressive fibrosis. Cell Stem Cell 2024",
-    10: "Pulmonary-Targeted NPs for IPF Therapy. Advanced Science 2025 — YAP/TAZ恶性循环与机械转导",
-    11: "Nature空间转录组学 2025 — Csmd1+分泌型/Cd248+修复型成纤维细胞亚型",
-    12: "左为团队 Science Advances 2026 — TGF-β梯度双角色与iBMP7工程化基底细胞",
-    13: "Berne & Levy Physiology, 8th Edition (Koeppen & Stanton)",
-    14: "West's Respiratory Physiology: The Essentials, 10th Edition",
-    15: "Richeldi L, et al. INPULSIS Trial. NEJM 2014;370:2071-2082",
-    16: "Ren Y, et al. Rentosertib (TNIK inhibitor) in IPF: GENESIS-IPF IIa trial. Nature Medicine 2025",
-    17: "Nerandomilast (BI 1015550, PDE4B inhibitor) FIBRONEER-IPF Phase 3, 2025",
-    18: "Nintedanib Population PK: Eur J Clin Pharmacol 2018; 1191 patients",
-    19: "Pirfenidone PK: J Clin Pharmacol 2007; 48 healthy Chinese volunteers",
+    1:  "Suki B, Bates JHT. Mathematical Modeling of the Healthy and Diseased Lung. Springer 2024. ISBN: 978-3-031-53202-3",
+    2:  "Zhou X, et al. Digital twins of ex vivo human lungs enable accurate evaluation of therapeutic efficacy. Nat Biotechnol 2026 (已接收/在线首发)",
+    7:  "Martinez FJ, et al. Idiopathic pulmonary fibrosis. Nat Rev Dis Primers 2017;3:17074. doi:10.1038/nrdp.2017.74",
+    8:  "Ye Z & Hu Y. TGF-β1 in idiopathic pulmonary fibrosis. Int J Mol Med 2021;48:132. doi:10.3892/ijmm.2021.4950",
+    9:  "Zhao R, et al. Sustained amphiregulin expression drives progressive lung fibrosis. Cell Stem Cell 2024;31(4). doi:10.1016/j.stem.2024.02.013",
+    10: "YAP/TAZ机械转导恶性循环: 多篇文献支持 — (a) Singh MK, et al. Eur Respir J 2025 (YAP/TAZ调控巨噬细胞介导肺纤维化); (b) Liu F, et al. J Clin Invest 2024; (c) Nature Rev Mol Cell Biol 2024 (YAP/TAZ mechanobiology综述). IPF肺刚度6-7倍: Liu F, et al. Am J Physiol Lung Cell Mol Physiol 2016;311(1):L52-63",
+    11: "Nature空间转录组学 2025 — Csmd1+分泌型/Cd248+修复型成纤维细胞亚型 (需补充具体DOI)",
+    12: "左为团队 Science Advances 2026 — TGF-β梯度双角色与iBMP7工程化基底细胞 (需补充具体DOI)",
+    13: "Koeppen BM, Stanton BA. Berne & Levy Physiology, 8th Edition. Elsevier 2024. ISBN: 978-0-323-87804-0",
+    14: "West JB, Luks AM. West's Respiratory Physiology: The Essentials, 11th Edition. Wolters Kluwer 2021. ISBN: 978-1975155985",
+    15: "Richeldi L, et al. Efficacy and safety of nintedanib in IPF (INPULSIS). NEJM 2014;370:2071-2082. doi:10.1056/NEJMoa1402584",
+    "15b": "King TE Jr, et al. A phase 3 trial of pirfenidone in IPF (ASCEND). NEJM 2014;370:2083-2092. doi:10.1056/NEJMoa1402582",
+    16: "Ren Y, et al. A generative AI-discovered TNIK inhibitor for IPF: a randomized phase 2a trial. Nature Medicine 2025. doi:10.1038/s41591-025-03600-z",
+    17: "Nerandomilast in Patients with Idiopathic Pulmonary Fibrosis. FIBRONEER-IPF Phase 3. NEJM 2025. doi:10.1056/NEJMoa2502600",
+    18: "Schmid U, et al. Population PK of nintedanib in NSCLC/IPF patients. Eur J Clin Pharmacol 2018;74:91-103. doi:10.1007/s00228-017-2366-3 (1191例, Ka=0.0827, CL/F=897, Vd/F=465)",
+    19: "Pirfenidone PK: 中国健康志愿者数据, J Clin Pharmacol 2007; 多中心PK研究",
     20: "Brillet PY, et al. Personalized lung poromechanical modeling for fibrotic ILD. Expert Rev Med Devices 2025",
-    21: "黄芪甲苷(AS-IV)抗肺纤维化: Network Pharmacology + 实验验证, Integrating Network Pharmacology 2024",
+    21: "黄芪甲苷(AS-IV)抗肺纤维化: Wang H, et al. J Ethnopharmacol 2024; 网络药理学分析",
 }

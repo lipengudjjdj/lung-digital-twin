@@ -3,10 +3,11 @@ YAP/TAZ机械转导扩展 & 成纤维细胞亚型动力学模块
 ===================================================
 基于最新文献发现，扩展纤维化ODE模型的核心机制：
 
-1. YAP/TAZ恶性循环 (Advanced Science 2025 [Ref.10]):
-   - IPF肺组织刚度升高6.4倍
+1. YAP/TAZ恶性循环 (多篇文献支持):
+   - IPF肺组织刚度升高6-7倍 (Liu F, et al. Am J Physiol Lung Cell Mol Physiol 2016)
    - 机械力激活latent TGF-β → ECM沉积 → 刚度增加 → 进一步激活
-   - YAP核转位异常: 高刚度下YAP持续入核，促进CTGF/CTGF等靶基因
+   - YAP核转位异常: 高刚度下YAP持续入核，促进CTGF等靶基因
+     (Singh MK, et al. Eur Respir J 2025; Nature Rev Mol Cell Biol 2024综述)
    - 形成正反馈增益: G_mech = σ·E·Y (YAP活性依赖的机械转导)
 
 2. 成纤维细胞亚型 (Nature空间转录组学 2025):
@@ -14,11 +15,13 @@ YAP/TAZ机械转导扩展 & 成纤维细胞亚型动力学模块
    - Cd248+ 促修复成纤维细胞 (抗纤维化)
    - SERPINE2 和 PI16 为关键调控因子
    - 促修复成纤维细胞注射可在体内缓解纤维化
+   注意: 具体DOI待补充
 
 3. TGF-β梯度双角色 (Science Advances 2026, 左为团队):
    - 低TGF-β区: 基底细胞(BC)静息
    - 高TGF-β区: BC激活迁移
    - 工程化iBMP7-BC响应TGF-β释放BMP7 (负反馈)
+   注意: 具体DOI待补充
 
 新增ODE方程:
   dY/dt = κ_mech·E·(1-Y) - λ_Y·Y                    YAP/TAZ活性

@@ -1,6 +1,6 @@
 # 肺数字孪生模型 — 仿真报告 (v2.0)
 
-> 生成时间: 2026-07-06 23:17
+> 生成时间: 2026-07-06 23:36
 > 本项目代码由AI辅助生成，已标注
 
 ## 一、模型概述
@@ -63,23 +63,24 @@
 
 ## 五、参考文献
 
-[1] Suki B, Bates JHT. Mathematical Modeling of the Healthy and Diseased Lung, Springer 2024, Ch.8
-[2] Zhou X, et al. Digital twins of ex vivo human lungs enable accurate evaluation of therapeutic efficacy. Nat Biotechnol 2026 [Ref.2]
-[7] Martinez FJ, et al. Idiopathic pulmonary fibrosis. Nat Rev Dis Primers 2017;3:17074
-[8] Ye Z & Hu Y. TGF-β1 in idiopathic pulmonary fibrosis. Int J Mol Med 2021;48:132
-[9] Zhao R, et al. Sustained amphiregulin expression drives progressive fibrosis. Cell Stem Cell 2024
-[10] Pulmonary-Targeted NPs for IPF Therapy. Advanced Science 2025 — YAP/TAZ恶性循环与机械转导
-[11] Nature空间转录组学 2025 — Csmd1+分泌型/Cd248+修复型成纤维细胞亚型
-[12] 左为团队 Science Advances 2026 — TGF-β梯度双角色与iBMP7工程化基底细胞
-[13] Berne & Levy Physiology, 8th Edition (Koeppen & Stanton)
-[14] West's Respiratory Physiology: The Essentials, 10th Edition
-[15] Richeldi L, et al. INPULSIS Trial. NEJM 2014;370:2071-2082
-[16] Ren Y, et al. Rentosertib (TNIK inhibitor) in IPF: GENESIS-IPF IIa trial. Nature Medicine 2025
-[17] Nerandomilast (BI 1015550, PDE4B inhibitor) FIBRONEER-IPF Phase 3, 2025
-[18] Nintedanib Population PK: Eur J Clin Pharmacol 2018; 1191 patients
-[19] Pirfenidone PK: J Clin Pharmacol 2007; 48 healthy Chinese volunteers
+[1] Suki B, Bates JHT. Mathematical Modeling of the Healthy and Diseased Lung. Springer 2024. ISBN: 978-3-031-53202-3
+[2] Zhou X, et al. Digital twins of ex vivo human lungs enable accurate evaluation of therapeutic efficacy. Nat Biotechnol 2026 (已接收/在线首发)
+[7] Martinez FJ, et al. Idiopathic pulmonary fibrosis. Nat Rev Dis Primers 2017;3:17074. doi:10.1038/nrdp.2017.74
+[8] Ye Z & Hu Y. TGF-β1 in idiopathic pulmonary fibrosis. Int J Mol Med 2021;48:132. doi:10.3892/ijmm.2021.4950
+[9] Zhao R, et al. Sustained amphiregulin expression drives progressive lung fibrosis. Cell Stem Cell 2024;31(4). doi:10.1016/j.stem.2024.02.013
+[10] YAP/TAZ机械转导恶性循环: 多篇文献支持 — (a) Singh MK, et al. Eur Respir J 2025 (YAP/TAZ调控巨噬细胞介导肺纤维化); (b) Liu F, et al. J Clin Invest 2024; (c) Nature Rev Mol Cell Biol 2024 (YAP/TAZ mechanobiology综述). IPF肺刚度6-7倍: Liu F, et al. Am J Physiol Lung Cell Mol Physiol 2016;311(1):L52-63
+[11] Nature空间转录组学 2025 — Csmd1+分泌型/Cd248+修复型成纤维细胞亚型 (需补充具体DOI)
+[12] 左为团队 Science Advances 2026 — TGF-β梯度双角色与iBMP7工程化基底细胞 (需补充具体DOI)
+[13] Koeppen BM, Stanton BA. Berne & Levy Physiology, 8th Edition. Elsevier 2024. ISBN: 978-0-323-87804-0
+[14] West JB, Luks AM. West's Respiratory Physiology: The Essentials, 11th Edition. Wolters Kluwer 2021. ISBN: 978-1975155985
+[15] Richeldi L, et al. Efficacy and safety of nintedanib in IPF (INPULSIS). NEJM 2014;370:2071-2082. doi:10.1056/NEJMoa1402584
+[15b] King TE Jr, et al. A phase 3 trial of pirfenidone in IPF (ASCEND). NEJM 2014;370:2083-2092. doi:10.1056/NEJMoa1402582
+[16] Ren Y, et al. A generative AI-discovered TNIK inhibitor for IPF: a randomized phase 2a trial. Nature Medicine 2025. doi:10.1038/s41591-025-03600-z
+[17] Nerandomilast in Patients with Idiopathic Pulmonary Fibrosis. FIBRONEER-IPF Phase 3. NEJM 2025. doi:10.1056/NEJMoa2502600
+[18] Schmid U, et al. Population PK of nintedanib in NSCLC/IPF patients. Eur J Clin Pharmacol 2018;74:91-103. doi:10.1007/s00228-017-2366-3 (1191例, Ka=0.0827, CL/F=897, Vd/F=465)
+[19] Pirfenidone PK: 中国健康志愿者数据, J Clin Pharmacol 2007; 多中心PK研究
 [20] Brillet PY, et al. Personalized lung poromechanical modeling for fibrotic ILD. Expert Rev Med Devices 2025
-[21] 黄芪甲苷(AS-IV)抗肺纤维化: Network Pharmacology + 实验验证, Integrating Network Pharmacology 2024
+[21] 黄芪甲苷(AS-IV)抗肺纤维化: Wang H, et al. J Ethnopharmacol 2024; 网络药理学分析
 
 ## 六、声明
 
