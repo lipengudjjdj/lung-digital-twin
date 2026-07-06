@@ -80,6 +80,11 @@ class DrugIntervention:
             inhibit = drug.get(param_key, 0.0) * dose
             changes[param_key] = inhibit
 
+        # 获取所有增强系数 (如delta_enhance促进ECM降解, beta_enhance促进凋亡)
+        for param_key in ["delta_enhance", "beta_enhance", "epsilon_enhance"]:
+            enhance = drug.get(param_key, 0.0) * dose
+            changes[param_key] = enhance
+
         return changes
 
     def apply_drug_to_ode_params(self, drug_id, dose_level=1.0, base_params=None):
@@ -117,9 +122,21 @@ class DrugIntervention:
                 modified[f"{param_name}_original"] = original
                 modified[f"{param_name}_change"] = -changes[inhibit_key] * original
 
+        # 映射: delta_enhance → 增加 delta (促进ECM降解)
+        #        beta_enhance → 增加 beta (促进肌成纤维细胞凋亡)
+        for param_name in ["delta", "beta", "epsilon"]:
+            enhance_key = f"{param_name}_enhance"
+            if enhance_key in changes and changes[enhance_key] > 0:
+                original = modified.get(param_name, FIBROSIS_ODE.get(param_name, 0))
+                modified[param_name] = original * (1.0 + changes[enhance_key])
+                if f"{param_name}_original" not in modified:
+                    modified[f"{param_name}_original"] = original
+
         # 计算综合药物干预因子D (用于ECM降解增强项)
         # D = max(gamma_inhibit, alpha_inhibit) * dose_level
         D = max(changes.get("gamma_inhibit", 0), changes.get("alpha_inhibit", 0))
+        # 如果有delta_enhance，D因子也增加
+        D += changes.get("delta_enhance", 0) * 0.5
         modified["D_intervention"] = D
 
         return modified
@@ -167,6 +184,13 @@ class DrugIntervention:
                 inhibit_key = f"{param_name}_inhibit"
                 total_inhibit[param_name] += changes.get(inhibit_key, 0.0)
 
+            # 增强效果
+            for param_name in ["delta", "beta", "epsilon"]:
+                enhance_key = f"{param_name}_enhance"
+                if enhance_key not in modified:
+                    modified[enhance_key] = 0.0
+                modified[enhance_key] += changes.get(enhance_key, 0.0)
+
         # 限制总抑制不超过90%（防止过度抑制导致不合理结果）
         for param_name in total_inhibit:
             total_inhibit[param_name] = min(total_inhibit[param_name], 0.9)
@@ -178,8 +202,18 @@ class DrugIntervention:
             modified[f"{param_name}_original"] = original
             modified[f"{param_name}_inhibit_total"] = total_inhibit[param_name]
 
+        # 应用增强效果
+        for param_name in ["delta", "beta", "epsilon"]:
+            enhance_key = f"{param_name}_enhance"
+            if enhance_key in modified and modified[enhance_key] > 0:
+                original = modified[param_name]
+                modified[param_name] = original * (1.0 + modified[enhance_key])
+                if f"{param_name}_original" not in modified:
+                    modified[f"{param_name}_original"] = original
+
         # 综合D因子
         D = max(total_inhibit.get("gamma", 0), total_inhibit.get("alpha", 0))
+        D += modified.get("delta_enhance", 0) * 0.5
         modified["D_intervention"] = D
         modified["combination"] = combo_info
 

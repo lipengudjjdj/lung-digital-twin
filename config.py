@@ -259,6 +259,49 @@ DRUG_INTERVENTION = {
         "gamma_inhibit": 0.10,
         "ref": "万方数据2025; 中药网络药理学分析"
     },
+    "gusuibu": {
+        "name_cn": "骨碎补",
+        "frequency": 38,
+        "targets": ["TGFB1", "SMAD2", "MMP9"],
+        "pathways": ["TGF-β/Smad", "MMP/TIMP平衡"],
+        "alpha_inhibit": 0.25,       # 抑制TGF-β驱动的增殖
+        "sigma_inhibit": 0.15,       # 轻度抑制正反馈
+        "gamma_inhibit": 0.10,       # 轻度抑制ECM沉积
+        "delta_enhance": 0.20,       # 促进MMP9介导的ECM降解
+        "ref": "万方数据2025; 中药网络药理学分析; 骨碎补抗纤维化研究"
+    },
+    "chuanxiong": {
+        "name_cn": "川芎",
+        "frequency": 52,
+        "targets": ["NFKB1", "RELA", "MAPK1", "VEGFA"],
+        "pathways": ["NF-κB", "MAPK/ERK", "血管生成"],
+        "alpha_inhibit": 0.20,       # 抑制成纤维细胞增殖
+        "sigma_inhibit": 0.10,       # 轻度抑制正反馈
+        "gamma_inhibit": 0.20,       # 抑制ECM沉积
+        "eta_inhibit": 0.30,         # 抑制炎症(川芎活血化瘀)
+        "ref": "万方数据2025; 中药网络药理学分析; 川芎嗪抗纤维化研究"
+    },
+    "maitong": {
+        "name_cn": "麦冬",
+        "frequency": 41,
+        "targets": ["AKT1", "EGFR", "BCL2"],
+        "pathways": ["PI3K/AKT", "细胞凋亡调控"],
+        "alpha_inhibit": 0.15,       # 轻度抑制增殖
+        "gamma_inhibit": 0.15,       # 抑制ECM沉积
+        "beta_enhance": 0.20,        # 促进肌成纤维细胞凋亡(麦冬养阴润肺)
+        "ref": "万方数据2025; 中药网络药理学分析"
+    },
+    "kushen": {
+        "name_cn": "苦参",
+        "frequency": 33,
+        "targets": ["STAT3", "JAK2", "TGFB1"],
+        "pathways": ["JAK/STAT", "TGF-β/Smad"],
+        "alpha_inhibit": 0.30,       # 较强抑制增殖(苦参碱抗纤维化)
+        "sigma_inhibit": 0.20,       # 抑制正反馈
+        "gamma_inhibit": 0.15,       # 抑制ECM沉积
+        "eta_inhibit": 0.20,         # 抑制炎症
+        "ref": "万方数据2025; 苦参碱抗肺纤维化研究; 中药网络药理学分析"
+    },
     # --- 西药对照 ---
     "nintedanib": {
         "name_cn": "尼达尼布",

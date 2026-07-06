@@ -1,14 +1,19 @@
 """
-肺数字孪生模型 — 主程序
-=========================
-整合纤维化进程ODE模型、呼吸力学模型、药物干预模块，
+肺数字孪生模型 — 主程序 (v2.0)
+=================================
+整合纤维化进程ODE模型、呼吸力学模型、药物干预模块、
+参数敏感性分析、FVC仿真、论文草稿生成、高级可视化，
 提供完整的数字孪生仿真和交互式界面。
 
 用法:
-  python main.py           # 运行完整仿真并生成所有图表
-  python main.py --gui     # 启动Gradio交互界面
+  python main.py               # 运行完整仿真并生成所有图表
+  python main.py --gui         # 启动Gradio交互界面
+  python main.py --sensitivity # 仅运行敏感性分析
+  python main.py --paper       # 仅生成论文草稿
 
 所有参数来源见 config.py 和《肺数字孪生_参数数据库与文献来源.md》
+
+AI Generated: created with DuMate assistance
 """
 
 import os
@@ -29,15 +34,23 @@ from visualization import (
     plot_lung_function_metrics,
     plot_breathing_cycle,
 )
+from sensitivity_analysis import SensitivityAnalysis
+from fvc_simulator import FVCSimulator
+from paper_generator import PaperGenerator
+from advanced_viz import AdvancedVisualization
 
 
 class LungDigitalTwin:
-    """肺数字孪生模型 — 顶层整合类"""
+    """肺数字孪生模型 — 顶层整合类 (v2.0)"""
 
     def __init__(self):
         self.fibrosis_model = FibrosisODEModel()
         self.respiratory_model = RespiratoryModel()
         self.drug_intervention = DrugIntervention()
+        self.sensitivity = SensitivityAnalysis()
+        self.fvc_sim = FVCSimulator()
+        self.paper_gen = PaperGenerator()
+        self.adv_viz = AdvancedVisualization()
         self.results = {}
 
     def run_full_simulation(self, t_span=(0, 10), drug_start_time=None):
@@ -57,18 +70,18 @@ class LungDigitalTwin:
             所有仿真结果
         """
         print("=" * 60)
-        print("  肺数字孪生模型 (Lung Digital Twin) — 仿真启动")
+        print("  肺数字孪生模型 (Lung Digital Twin) v2.0 — 仿真启动")
         print("  所有参数来自已发表文献，详见参数数据库文档")
         print("=" * 60)
 
         # 1. 无干预的纤维化进程
-        print("\n[1/4] 模拟无干预纤维化进程...")
+        print("\n[1/6] 模拟无干预纤维化进程...")
         self.fibrosis_model.D = 0.0
         result_no_drug = self.fibrosis_model.simulate(t_span=t_span)
         self.results["no_drug"] = result_no_drug
 
-        # 2. 各药物干预仿真
-        print("[2/4] 模拟药物干预效果...")
+        # 2. 各药物干预仿真 (含新增中药: 骨碎补、川芎、麦冬、苦参)
+        print("[2/6] 模拟药物干预效果...")
         drug_ids = list(self.drug_intervention.drugs.keys())
         for drug_id in drug_ids:
             drug = self.drug_intervention.drugs[drug_id]
@@ -81,24 +94,41 @@ class LungDigitalTwin:
             print(f"  [OK] {drug['name_cn']} 仿真完成")
 
         # 3. 联合用药仿真
-        print("[3/4] 模拟联合用药 (黄芪+丹参)...")
-        combo_params = self.drug_intervention.apply_combination(["huangqi", "danshen"])
-        combo_model = FibrosisODEModel(params=combo_params)
-        D_combo = combo_params.get("D_intervention", 0)
-        combo_model.set_drug_intervention(D_combo)
-        result_combo = combo_model.simulate(t_span=t_span, drug_start_time=drug_start_time)
-        self.results["combo_huangqi_danshen"] = result_combo
-        print("  [OK] 黄芪+丹参联合仿真完成")
+        print("[3/6] 模拟联合用药...")
+        combo_groups = [
+            (["huangqi", "danshen"], "黄芪+丹参"),
+            (["huangqi", "gusuibu"], "黄芪+骨碎补"),
+            (["chuanxiong", "danshen"], "川芎+丹参"),
+            (["kushen", "huangqi"], "苦参+黄芪"),
+        ]
+        for drug_ids_combo, combo_name in combo_groups:
+            combo_params = self.drug_intervention.apply_combination(drug_ids_combo)
+            combo_model = FibrosisODEModel(params=combo_params)
+            D_combo = combo_params.get("D_intervention", 0)
+            combo_model.set_drug_intervention(D_combo)
+            result_combo = combo_model.simulate(t_span=t_span, drug_start_time=drug_start_time)
+            key = f"combo_{'_'.join(drug_ids_combo)}"
+            self.results[key] = result_combo
+            print(f"  [OK] {combo_name} 联合仿真完成")
 
         # 4. 呼吸力学验证
-        print("[4/4] 呼吸力学模型验证...")
+        print("[4/6] 呼吸力学模型验证...")
         resp_validation = self.respiratory_model.validate_model()
         for k, v in resp_validation.items():
             print(f"  {k}: {v}")
 
-        # ODE模型验证
+        # 5. FVC仿真
+        print("[5/6] FVC仿真与临床数据对比...")
+        for drug_id in [None, "nintedanib", "pirfenidone", "huangqi", "danshen"]:
+            fvc_result = self.fvc_sim.simulate_fvc(drug_id=drug_id, t_span=t_span[:2] if len(t_span) >= 2 else (0, 4))
+            key = f"fvc_{drug_id or 'placebo'}"
+            self.results[key] = fvc_result
+            name = drug_id or "安慰剂"
+            print(f"  {name}: FVC下降率 = {fvc_result['fvc_decline_rate']:.1f} mL/yr")
+
+        # 6. ODE模型验证
+        print("[6/6] ODE模型验证...")
         ode_validation = self.fibrosis_model.validate_against_clinical(result_no_drug)
-        print(f"\nODE模型验证:")
         print(f"  3.5年ECM密度: {ode_validation['E_at_3yr']:.3f}")
         print(f"  ECM增长倍数: {ode_validation['E_ratio_to_baseline']:.1f}x (临床参考: {IPF_PATHOLOGY['collagen_increase_factor']}x)")
         print(f"  稳态ECM: {ode_validation['E_steady_state']:.3f}")
@@ -109,7 +139,7 @@ class LungDigitalTwin:
 
     def generate_all_figures(self, output_dir=None):
         """
-        生成所有图表
+        生成所有图表 (包括新增的敏感性分析、FVC对比等)
 
         Parameters
         ----------
@@ -124,8 +154,9 @@ class LungDigitalTwin:
 
         print(f"\n生成图表到: {output_dir}")
 
+        # === 原始5张图 ===
         # 图1: 纤维化进程曲线
-        print("  [1/5] 纤维化进程曲线...")
+        print("  [1/11] 纤维化进程曲线...")
         plot_fibrosis_progression(
             self.results["no_drug"],
             save_path=os.path.join(output_dir, "fig1_fibrosis_progression.png"),
@@ -133,18 +164,21 @@ class LungDigitalTwin:
         )
 
         # 图2: PV曲线对比
-        print("  [2/5] PV曲线对比...")
+        print("  [2/11] PV曲线对比...")
         plot_pv_curves(
             self.respiratory_model,
             save_path=os.path.join(output_dir, "fig2_pv_curves.png")
         )
 
-        # 图3: 药物干预对比
-        print("  [3/5] 药物干预对比...")
+        # 图3: 药物干预对比 (含新增中药)
+        print("  [3/11] 药物干预对比...")
         drug_compare = {
             "无干预": self.results["no_drug"],
             "黄芪": self.results["huangqi"],
             "丹参": self.results["danshen"],
+            "骨碎补": self.results["gusuibu"],
+            "川芎": self.results["chuanxiong"],
+            "苦参": self.results["kushen"],
             "尼达尼布": self.results["nintedanib"],
             "吡非尼酮": self.results["pirfenidone"],
         }
@@ -154,20 +188,142 @@ class LungDigitalTwin:
         )
 
         # 图4: 肺功能指标
-        print("  [4/5] 肺功能指标...")
+        print("  [4/11] 肺功能指标...")
         plot_lung_function_metrics(
             self.respiratory_model,
             save_path=os.path.join(output_dir, "fig4_lung_function_metrics.png")
         )
 
         # 图5: 呼吸周期
-        print("  [5/5] 呼吸周期...")
+        print("  [5/11] 呼吸周期...")
         plot_breathing_cycle(
             self.respiratory_model,
             save_path=os.path.join(output_dir, "fig5_breathing_cycle.png")
         )
 
+        # === 新增6张图 ===
+        # 图6: FVC仿真 vs 临床数据
+        print("  [6/11] FVC仿真 vs 临床数据对比...")
+        self.fvc_sim.plot_fvc_comparison(
+            save_path=os.path.join(output_dir, "fig6_fvc_clinical_comparison.png")
+        )
+
+        # 图7: 参数局部敏感性(龙卷风图)
+        print("  [7/11] 参数局部敏感性分析(龙卷风图)...")
+        local_sens = self.sensitivity.local_sensitivity()
+        self.sensitivity.plot_tornado(
+            local_sens,
+            save_path=os.path.join(output_dir, "fig7_tornado_sensitivity.png")
+        )
+
+        # 图8: 全局敏感性(PRCC)
+        print("  [8/11] 全局敏感性分析(PRCC)...")
+        global_sens = self.sensitivity.global_sensitivity_lhs(n_samples=300)
+        self.sensitivity.plot_prcc(
+            global_sens,
+            save_path=os.path.join(output_dir, "fig8_prcc_sensitivity.png")
+        )
+
+        # 图9: 蒙特卡洛置信区间
+        print("  [9/11] 蒙特卡洛置信区间...")
+        self.sensitivity.plot_monte_carlo_ci(
+            n_runs=100, perturbation=0.15,
+            save_path=os.path.join(output_dir, "fig9_monte_carlo_ci.png")
+        )
+
+        # 图10: 药物对比+误差棒
+        print("  [10/11] 药物对比(含95%CI误差棒)...")
+        self.adv_viz.plot_drug_comparison_with_ci(
+            n_mc=30, perturbation=0.12,
+            save_path=os.path.join(output_dir, "fig10_drug_comparison_ci.png")
+        )
+
+        # 图11: FVC-ECM关系 + 参数热力图
+        print("  [11/11] FVC-ECM关系 + 参数热力图...")
+        self.adv_viz.plot_fvc_ecm_relationship(
+            save_path=os.path.join(output_dir, "fig11_fvc_ecm_relationship.png")
+        )
+        self.adv_viz.plot_parameter_heatmap(
+            param1="gamma", param2="delta", n_grid=15,
+            save_path=os.path.join(output_dir, "fig11b_parameter_heatmap.png")
+        )
+
+        # 呼吸动画(GIF)
+        print("  [BONUS] 生成呼吸周期动画...")
+        try:
+            self.adv_viz.generate_breathing_animation(
+                save_path=os.path.join(output_dir, "breathing_animation.gif")
+            )
+        except Exception as e:
+            print(f"    动画生成跳过: {e}")
+
         print(f"\n所有图表已生成到: {output_dir}")
+
+    def run_sensitivity_analysis(self, output_dir=None):
+        """
+        单独运行敏感性分析
+
+        Parameters
+        ----------
+        output_dir : str, optional
+            输出目录
+        """
+        if output_dir is None:
+            output_dir = os.path.dirname(os.path.abspath(__file__))
+            output_dir = os.path.join(output_dir, "output_figures")
+
+        os.makedirs(output_dir, exist_ok=True)
+
+        print("=" * 60)
+        print("  参数敏感性分析")
+        print("=" * 60)
+
+        # 局部敏感性
+        print("\n[1/3] 局部敏感性分析 (OAT ±10%)...")
+        local = self.sensitivity.local_sensitivity()
+        for k, v in local.items():
+            print(f"  {v['param_name']}: sens={v['sens_avg']:+.2f}")
+        self.sensitivity.plot_tornado(
+            local,
+            save_path=os.path.join(output_dir, "sensitivity_tornado.png")
+        )
+
+        # 全局敏感性
+        print("\n[2/3] 全局敏感性分析 (LHS n=500)...")
+        global_res = self.sensitivity.global_sensitivity_lhs(n_samples=500)
+        for i, k in enumerate(self.sensitivity.param_keys):
+            print(f"  {self.sensitivity.param_names[k]}: PRCC={global_res['prcc'][i]['rho']:+.3f}")
+        self.sensitivity.plot_prcc(
+            global_res,
+            save_path=os.path.join(output_dir, "sensitivity_prcc.png")
+        )
+
+        # 蒙特卡洛
+        print("\n[3/3] 蒙特卡洛置信区间...")
+        mc = self.sensitivity.plot_monte_carlo_ci(
+            n_runs=100, perturbation=0.15,
+            save_path=os.path.join(output_dir, "monte_carlo_ci.png")
+        )
+        if mc:
+            print(f"  3.5yr Median={mc['median_3yr']:.3f}, 95%CI={mc['ci95_3yr']}")
+
+        # 参数热力图
+        print("\n[BONUS] 参数空间热力图...")
+        self.adv_viz.plot_parameter_heatmap(
+            param1="gamma", param2="delta", n_grid=20,
+            save_path=os.path.join(output_dir, "parameter_heatmap.png")
+        )
+
+        print("\n敏感性分析完成！")
+
+    def generate_paper(self):
+        """生成论文草稿"""
+        print("=" * 60)
+        print("  论文草稿生成")
+        print("=" * 60)
+        paper, path = self.paper_gen.generate_full_paper()
+        print(f"论文草稿已保存至: {path}")
+        return path
 
     def generate_report(self, output_path=None):
         """
@@ -196,17 +352,20 @@ class LungDigitalTwin:
         idx_3yr = np.argmin(np.abs(t - 3.5))
         idx_5yr = np.argmin(np.abs(t - 5.0))
 
-        report = f"""# 肺数字孪生模型 — 仿真报告
+        report = f"""# 肺数字孪生模型 — 仿真报告 (v2.0)
 
 > 生成时间: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M')}
-> ⚠️ 本项目代码由AI辅助生成，已标注
+> 本项目代码由AI辅助生成，已标注
 
 ## 一、模型概述
 
 本数字孪生模型整合了：
 1. **纤维化进程ODE模型** — 基于Suki & Bates (2024)正反馈环路理论
 2. **呼吸力学模型** — 肺顺应性随纤维化动态变化
-3. **药物干预模块** — 基于中药网络药理学靶点数据
+3. **药物干预模块** — 基于中药网络药理学靶点数据（10种中药/西药）
+4. **参数敏感性分析** — 局部OAT + 全局LHS(PRCC) + 蒙特卡洛CI
+5. **FVC仿真** — 与INPULSIS/ASCEND临床试验数据对比验证
+6. **论文自动生成** — 方法学和结果章节草稿
 
 ## 二、模型验证
 
@@ -233,22 +392,48 @@ class LungDigitalTwin:
 """
 
         E_no_drug = self.results["no_drug"]["E"]
-        for drug_id in ["huangqi", "danshen", "gancao", "nintedanib", "pirfenidone", "combo_huangqi_danshen"]:
-            drug_name = self.drug_intervention.drugs.get(drug_id, {}).get("name_cn", drug_id)
+        all_drug_ids = list(self.drug_intervention.drugs.keys()) + [
+            k for k in self.results if k.startswith("combo_")
+        ]
+        for drug_id in all_drug_ids:
+            if drug_id == "no_drug":
+                continue
             if drug_id in self.results:
+                if drug_id.startswith("combo_"):
+                    drug_name = drug_id.replace("combo_", "").replace("_", "+")
+                else:
+                    drug_name = self.drug_intervention.drugs.get(drug_id, {}).get("name_cn", drug_id)
                 E_drug = self.results[drug_id]["E"]
                 reduction = (1 - E_drug[idx_3yr] / E_no_drug[idx_3yr]) * 100 if E_no_drug[idx_3yr] > 0 else 0
                 report += f"| {drug_name} | {E_drug[idx_3yr]:.3f} | {E_drug[idx_5yr]:.3f} | {reduction:.1f}% |\n"
 
+        # FVC验证
+        report += """
+## 四、FVC仿真验证
+
+| 组别 | 模型FVC下降率(mL/yr) | 临床FVC下降率(mL/yr) | 来源 |
+|------|---------------------|---------------------|------|
+"""
+        fvc_placebo = self.results.get("fvc_placebo")
+        fvc_nin = self.results.get("fvc_nintedanib")
+        fvc_pir = self.results.get("fvc_pirfenidone")
+
+        if fvc_placebo:
+            report += f"| 安慰剂 | {fvc_placebo['fvc_decline_rate']:.1f} | 239.9 | INPULSIS[15] |\n"
+        if fvc_nin:
+            report += f"| 尼达尼布 | {fvc_nin['fvc_decline_rate']:.1f} | 114.1 | INPULSIS[15] |\n"
+        if fvc_pir:
+            report += f"| 吡非尼酮 | {fvc_pir['fvc_decline_rate']:.1f} | 131.2 | ASCEND |\n"
+
         report += f"""
-## 四、参考文献
+## 五、参考文献
 
 """
         for ref_id, ref_text in REFERENCES.items():
             report += f"[{ref_id}] {ref_text}\n"
 
         report += """
-## 五、声明
+## 六、声明
 
 本项目代码由AI (DuMate) 辅助生成，所有模型参数均来自已发表的学术文献。
 模型仅用于学术研究，不作为临床诊断或治疗依据。
@@ -285,7 +470,6 @@ def launch_gradio():
         model.set_damage_level(damage_level)
         result = model.simulate()
 
-        # 生成图表
         plot_fibrosis_progression(result, save_path="temp_fibrosis.png")
         return "temp_fibrosis.png"
 
@@ -293,17 +477,16 @@ def launch_gradio():
         """Gradio回调: 药物干预仿真"""
         drug_id_map = {
             "黄芪": "huangqi", "丹参": "danshen", "甘草": "gancao",
-            "当归": "danggui", "白术": "baizhu",
+            "当归": "danggui", "白术": "baizhu", "骨碎补": "gusuibu",
+            "川芎": "chuanxiong", "麦冬": "maitong", "苦参": "kushen",
             "尼达尼布": "nintedanib", "吡非尼酮": "pirfenidone",
         }
 
         drug_id = drug_id_map.get(drug_name, "huangqi")
 
-        # 无干预
         model_no = FibrosisODEModel()
         result_no = model_no.simulate(t_span=(0, t_max))
 
-        # 有干预
         modified = twin.drug_intervention.apply_drug_to_ode_params(drug_id, dose)
         model_drug = FibrosisODEModel(params=modified)
         D = modified.get("D_intervention", 0)
@@ -329,20 +512,32 @@ def launch_gradio():
         )
         return "temp_pv.png"
 
+    def run_sensitivity():
+        """Gradio回调: 敏感性分析"""
+        sa = SensitivityAnalysis()
+        local = sa.local_sensitivity()
+        sa.plot_tornado(local, save_path="temp_sensitivity.png")
+        return "temp_sensitivity.png"
+
+    def run_fvc():
+        """Gradio回调: FVC仿真"""
+        twin.fvc_sim.plot_fvc_comparison(save_path="temp_fvc.png")
+        return "temp_fvc.png"
+
     # 构建界面
-    with gr.Blocks(title="肺数字孪生模型", theme=gr.themes.Soft()) as demo:
-        gr.Markdown("# 🫁 肺数字孪生模型 (Lung Digital Twin)")
+    with gr.Blocks(title="肺数字孪生模型 v2.0", theme=gr.themes.Soft()) as demo:
+        gr.Markdown("# 肺数字孪生模型 (Lung Digital Twin) v2.0")
         gr.Markdown("基于真实文献参数的肺纤维化进程仿真与药物干预评估")
-        gr.Markdown("> ⚠️ 本项目由AI辅助生成 | 所有参数来自已发表文献")
+        gr.Markdown("> 本项目由AI辅助生成 | 所有参数来自已发表文献")
 
         with gr.Tab("纤维化进程"):
             with gr.Row():
                 with gr.Column():
                     t_max = gr.Slider(1, 20, value=10, step=1, label="仿真时长 (年)")
                     damage = gr.Slider(0, 1, value=0.3, step=0.05, label="损伤水平")
-                    alpha = gr.Slider(0.1, 2.0, value=0.8, step=0.1, label="α (增殖率)")
-                    gamma = gr.Slider(0.1, 2.0, value=0.6, step=0.1, label="γ (ECM沉积率)")
-                    sigma = gr.Slider(0.1, 2.0, value=0.3, step=0.1, label="σ (正反馈率)")
+                    alpha = gr.Slider(0.1, 2.0, value=FIBROSIS_ODE["alpha"], step=0.1, label="alpha (增殖率)")
+                    gamma = gr.Slider(0.05, 1.0, value=FIBROSIS_ODE["gamma"], step=0.02, label="gamma (ECM沉积率)")
+                    sigma = gr.Slider(0.05, 1.0, value=FIBROSIS_ODE["sigma"], step=0.05, label="sigma (正反馈率)")
                     btn1 = gr.Button("运行仿真", variant="primary")
                 with gr.Column():
                     out1 = gr.Image(label="纤维化进程曲线")
@@ -353,7 +548,8 @@ def launch_gradio():
             with gr.Row():
                 with gr.Column():
                     drug_name = gr.Dropdown(
-                        choices=["黄芪", "丹参", "甘草", "当归", "白术", "尼达尼布", "吡非尼酮"],
+                        choices=["黄芪", "丹参", "甘草", "当归", "白术", "骨碎补",
+                                 "川芎", "麦冬", "苦参", "尼达尼布", "吡非尼酮"],
                         value="黄芪", label="选择药物"
                     )
                     dose = gr.Slider(0.1, 1.0, value=1.0, step=0.1, label="剂量水平")
@@ -375,12 +571,34 @@ def launch_gradio():
 
             btn3.click(simulate_pv, [E_val], out3)
 
+        with gr.Tab("敏感性分析"):
+            with gr.Row():
+                btn4 = gr.Button("运行敏感性分析", variant="primary")
+            with gr.Row():
+                out4 = gr.Image(label="龙卷风图")
+
+            btn4.click(run_sensitivity, [], out4)
+
+        with gr.Tab("FVC仿真"):
+            with gr.Row():
+                btn5 = gr.Button("运行FVC仿真", variant="primary")
+            with gr.Row():
+                out5 = gr.Image(label="FVC vs 临床数据")
+
+            btn5.click(run_fvc, [], out5)
+
     demo.launch(share=False, server_name="0.0.0.0", server_port=7860)
 
 
 if __name__ == "__main__":
     if "--gui" in sys.argv:
         launch_gradio()
+    elif "--sensitivity" in sys.argv:
+        twin = LungDigitalTwin()
+        twin.run_sensitivity_analysis()
+    elif "--paper" in sys.argv:
+        twin = LungDigitalTwin()
+        twin.generate_paper()
     else:
         # 运行完整仿真
         twin = LungDigitalTwin()
