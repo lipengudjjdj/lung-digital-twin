@@ -134,7 +134,8 @@ class LungDigitalTwin:
         # 5. FVC仿真
         print("[5/9] FVC仿真与临床数据对比...")
         for drug_id in [None, "nintedanib", "pirfenidone", "huangqi", "danshen"]:
-            fvc_result = self.fvc_sim.simulate_fvc(drug_id=drug_id, t_span=t_span[:2] if len(t_span) >= 2 else (0, 4))
+            # FVC仿真固定使用4年窗(INPULSIS试验为52周≈1年，用4年更合理)
+            fvc_result = self.fvc_sim.simulate_fvc(drug_id=drug_id, t_span=(0, 4))
             key = f"fvc_{drug_id or 'placebo'}"
             self.results[key] = fvc_result
             name = drug_id or "安慰剂"
@@ -468,11 +469,11 @@ class LungDigitalTwin:
         fvc_pir = self.results.get("fvc_pirfenidone")
 
         if fvc_placebo:
-            report += f"| 安慰剂 | {fvc_placebo['fvc_decline_rate']:.1f} | 239.9 | INPULSIS[15] |\n"
+            report += f"| 安慰剂 | {fvc_placebo['fvc_decline_rate']:.1f} | 239.9 | INPULSIS-1[15] |\n"
         if fvc_nin:
-            report += f"| 尼达尼布 | {fvc_nin['fvc_decline_rate']:.1f} | 114.1 | INPULSIS[15] |\n"
+            report += f"| 尼达尼布 | {fvc_nin['fvc_decline_rate']:.1f} | 114.7 | INPULSIS-1[15] |\n"
         if fvc_pir:
-            report += f"| 吡非尼酮 | {fvc_pir['fvc_decline_rate']:.1f} | 131.2 | ASCEND |\n"
+            report += f"| 吡非尼酮 | {fvc_pir['fvc_decline_rate']:.1f} | N/A (ASCEND以%pred为终点) | ASCEND[15b] |\n"
 
         report += f"""
 ## 五、参考文献

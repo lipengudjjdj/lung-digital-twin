@@ -245,9 +245,9 @@ ODE系统采用四阶Runge-Kutta方法(RK45)求解，相对误差容限$10^{-6}$
 
 | 组别 | 模型FVC下降率(mL/yr) | 临床FVC下降率(mL/yr) | 来源 |
 |------|---------------------|---------------------|------|
-| 安慰剂 | {fvc_placebo['fvc_decline_rate']:.1f} | 239.9 | INPULSIS[6] |
-| 尼达尼布 | {fvc_nin['fvc_decline_rate']:.1f} | 114.1 | INPULSIS[6] |
-| 吡非尼酮 | {fvc_pir['fvc_decline_rate']:.1f} | 131.2 | ASCEND[8] |
+| 安慰剂 | {fvc_placebo['fvc_decline_rate']:.1f} | 239.9 | INPULSIS-1[6] |
+| 尼达尼布 | {fvc_nin['fvc_decline_rate']:.1f} | 114.7 | INPULSIS-1[6] |
+| 吡非尼酮 | {fvc_pir['fvc_decline_rate']:.1f} | N/A (ASCEND以%pred为终点) | ASCEND[8] |
 
 模型预测的FVC下降趋势与临床试验数据方向一致，验证了数字孪生模型对肺功能恶化的预测能力。
 
@@ -301,27 +301,37 @@ FVC、DLCO等肺功能指标与ECM密度呈非线性负相关（图7），符合
         """生成参考文献列表"""
         refs = """## 参考文献
 
-[1] Suki B, Bates JHT. Lung Mechanical Function and Its Emerging Role in the Pathogenesis and Treatment of Pulmonary Fibrosis. Springer, 2024, Ch.8.
+[1] Suki B, Bates JHT. Mathematical Modeling of the Healthy and Diseased Lung. Springer 2024. ISBN: 978-3-031-53202-3
 
-[2] Zhou Y, et al. A digital twin of the human lung. Nature Biotechnology, 2026.
+[2] Zhou X, Wang B, Wei Y, et al. Digital twins of ex vivo human lungs enable accurate and personalized evaluation of therapeutic efficacy. Nat Biotechnol 2026. doi:10.1038/s41587-026-03121-4
 
-[3] Levy MN, Stanton BA, Koeppen BM. Berne & Levy Physiology. 8th Ed. Elsevier, 2024.
+[3] Koeppen BM, Stanton BA. Berne & Levy Physiology, 8th Edition. Elsevier 2024. ISBN: 978-0-323-87804-0
 
 [4] Harris RS. Pressure-volume curves of the respiratory system. In: Tobin MJ, ed. Principles and Practice of Mechanical Ventilation. 3rd Ed. McGraw-Hill, 2013.
 
-[5] 网络药理学分析数据(内部数据库), 基于TCMSP和BatMan-TCM平台.
+[5] 中药网络药理学分析(2026年3月), 基于TCMSP和BatMan-TCM平台. ⚠️ 中药抑制系数为网络药理学靶点映射的模型参数，非直接实验测量值。
 
-[6] Richeldi L, du Bois RM, Raghu G, et al. Efficacy and Safety of Nintedanib in Idiopathic Pulmonary Fibrosis. N Engl J Med. 2014;370(22):2071-2082. (INPULSIS)
+[6] Richeldi L, du Bois RM, Raghu G, et al. Efficacy and Safety of Nintedanib in Idiopathic Pulmonary Fibrosis. N Engl J Med. 2014;370(22):2071-2082. doi:10.1056/NEJMoa1402584 (INPULSIS)
 
-[7] West JB, Luks AM. West's Respiratory Physiology: The Essentials. 10th Ed. Wolters Kluwer, 2016.
+[7] Martinez FJ, et al. Idiopathic pulmonary fibrosis. Nat Rev Dis Primers 2017;3:17074. doi:10.1038/nrdp.2017.74
 
-[8] King TE Jr, Bradford WZ, Castro-Bernardini S, et al. A Phase 3 Trial of Pirfenidone in Patients with Idiopathic Pulmonary Fibrosis. N Engl J Med. 2014;370(22):2083-2092. (ASCEND)
+[8] King TE Jr, Bradford WZ, Castro-Bernardini S, et al. A Phase 3 Trial of Pirfenidone in Patients with Idiopathic Pulmonary Fibrosis. N Engl J Med. 2014;370(22):2083-2092. doi:10.1056/NEJMoa1402582 (ASCEND, 主要终点为FVC%pred)
 
 [9] King TE Jr, Pardo A, Selman M. Idiopathic pulmonary fibrosis. Lancet. 2011;378(9807):1949-1961.
 
-[10] Fernandez IE, Eickelberg O. New Cellular and Molecular Mechanisms of Lung Injury and Fibrosis in Idiopathic Pulmonary Fibrosis. Lancet. 2012;380(9842):680-688.
+[10] YAP/TAZ机械转导: Singh MK, et al. Eur Respir J 2025; Liu F, et al. Am J Physiol Lung Cell Mol Physiol 2016;311(1):L52-63 (IPF刚度6-7倍).
 
-[11] Degryse AL, Lawson WE. Progress toward improving understanding and treatment of pulmonary fibrosis. Am J Med Sci. 2011;341(6):444-448.
+[11] Longaker MT团队. Histological signatures map anti-fibrotic factors in mouse and human lungs. Nature 2025. doi:10.1038/s41586-025-08727-3 (Csmd1+/Cd248+成纤维细胞亚型)
+
+[12] Zou T, Zhang S, Liu M, et al. Control of airway basal stem cell–mediated lung repair by TGF-β signaling. Science Advances 2026;12(2):eadz1519. doi:10.1126/sciadv.adz1519
+
+[13] West JB, Luks AM. West's Respiratory Physiology: The Essentials, 11th Edition. Wolters Kluwer 2021. ISBN: 978-1975155985
+
+[14] Ren Y, et al. A generative AI-discovered TNIK inhibitor for IPF: a randomized phase 2a trial. Nature Medicine 2025. doi:10.1038/s41591-025-03600-z
+
+[15] Nerandomilast in Patients with Idiopathic Pulmonary Fibrosis. FIBRONEER-IPF Phase 3. NEJM 2025. doi:10.1056/NEJMoa2502600
+
+[16] Schmid U, et al. Population PK of nintedanib in NSCLC/IPF patients. Eur J Clin Pharmacol 2018;74:91-103. doi:10.1007/s00228-017-2366-3
 
 """
         return refs

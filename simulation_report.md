@@ -1,6 +1,6 @@
 # 肺数字孪生模型 — 仿真报告 (v2.0)
 
-> 生成时间: 2026-07-06 23:36
+> 生成时间: 2026-07-07 22:31
 > 本项目代码由AI辅助生成，已标注
 
 ## 一、模型概述
@@ -57,20 +57,20 @@
 
 | 组别 | 模型FVC下降率(mL/yr) | 临床FVC下降率(mL/yr) | 来源 |
 |------|---------------------|---------------------|------|
-| 安慰剂 | 0.0 | 239.9 | INPULSIS[15] |
-| 尼达尼布 | 78.8 | 114.1 | INPULSIS[15] |
-| 吡非尼酮 | 0.0 | 131.2 | ASCEND |
+| 安慰剂 | 0.0 | 239.9 | INPULSIS-1[15] |
+| 尼达尼布 | 78.8 | 114.7 | INPULSIS-1[15] |
+| 吡非尼酮 | 0.0 | N/A (ASCEND以%pred为终点) | ASCEND[15b] |
 
 ## 五、参考文献
 
 [1] Suki B, Bates JHT. Mathematical Modeling of the Healthy and Diseased Lung. Springer 2024. ISBN: 978-3-031-53202-3
-[2] Zhou X, et al. Digital twins of ex vivo human lungs enable accurate evaluation of therapeutic efficacy. Nat Biotechnol 2026 (已接收/在线首发)
+[2] Zhou X, Wang B, Wei Y, et al. Digital twins of ex vivo human lungs enable accurate and personalized evaluation of therapeutic efficacy. Nat Biotechnol 2026. doi:10.1038/s41587-026-03121-4
 [7] Martinez FJ, et al. Idiopathic pulmonary fibrosis. Nat Rev Dis Primers 2017;3:17074. doi:10.1038/nrdp.2017.74
 [8] Ye Z & Hu Y. TGF-β1 in idiopathic pulmonary fibrosis. Int J Mol Med 2021;48:132. doi:10.3892/ijmm.2021.4950
 [9] Zhao R, et al. Sustained amphiregulin expression drives progressive lung fibrosis. Cell Stem Cell 2024;31(4). doi:10.1016/j.stem.2024.02.013
 [10] YAP/TAZ机械转导恶性循环: 多篇文献支持 — (a) Singh MK, et al. Eur Respir J 2025 (YAP/TAZ调控巨噬细胞介导肺纤维化); (b) Liu F, et al. J Clin Invest 2024; (c) Nature Rev Mol Cell Biol 2024 (YAP/TAZ mechanobiology综述). IPF肺刚度6-7倍: Liu F, et al. Am J Physiol Lung Cell Mol Physiol 2016;311(1):L52-63
-[11] Nature空间转录组学 2025 — Csmd1+分泌型/Cd248+修复型成纤维细胞亚型 (需补充具体DOI)
-[12] 左为团队 Science Advances 2026 — TGF-β梯度双角色与iBMP7工程化基底细胞 (需补充具体DOI)
+[11] Longaker MT团队. Histological signatures map anti-fibrotic factors in mouse and human lungs. Nature 2025. doi:10.1038/s41586-025-08727-3 (Csmd1+分泌型/Cd248+修复型成纤维细胞亚型)
+[12] Zou T, Zhang S, Liu M, et al. Control of airway basal stem cell–mediated lung repair by TGF-β signaling. Science Advances 2026;12(2):eadz1519. doi:10.1126/sciadv.adz1519 (左为团队, TGF-β梯度双角色+iBMP7工程化基底细胞)
 [13] Koeppen BM, Stanton BA. Berne & Levy Physiology, 8th Edition. Elsevier 2024. ISBN: 978-0-323-87804-0
 [14] West JB, Luks AM. West's Respiratory Physiology: The Essentials, 11th Edition. Wolters Kluwer 2021. ISBN: 978-1975155985
 [15] Richeldi L, et al. Efficacy and safety of nintedanib in IPF (INPULSIS). NEJM 2014;370:2071-2082. doi:10.1056/NEJMoa1402584

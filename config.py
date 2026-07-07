@@ -216,6 +216,12 @@ RESPIRATORY_MODEL = {
 # 五、药物干预参数（基于网络药理学）
 # ============================================================
 # 数据来源: 2026年3月网络药理学分析 + 万方数据2025年136首专利复方
+#
+# ⚠️ 重要声明:
+# 中药(黄芪、丹参等9味)的抑制系数(alpha_inhibit等)为基于网络药理学靶点映射的
+# 模型参数，非直接实验测量值。通过TCMSP/BatMan-TCM平台获取中药-靶点-通路映射，
+# 再根据靶点与ODE参数的对应关系推算抑制系数，反映通路层面的相对抑制强度。
+# 西药(nintedanib/pirfenidone)的抑制系数基于临床试验FVC数据反向校准。
 
 DRUG_INTERVENTION = {
     "huangqi": {
@@ -223,97 +229,105 @@ DRUG_INTERVENTION = {
         "frequency": 82,        # 在136首复方中出现82次 (60.29%)
         "targets": ["TGFB1", "AKT1", "SMAD3"],
         "pathways": ["TGF-β/Smad", "PI3K/AKT"],
-        # 对ODE参数的影响 (抑制系数, 0=无抑制, 1=完全抑制)
+        # 对ODE参数的影响 (⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值)
         "alpha_inhibit": 0.35,   # 抑制TGF-β驱动的成纤维细胞增殖
-                                  # 校准: 黄芪主要靶向TGF-β通路
+                                   # 校准: 黄芪主要靶向TGF-β通路
         "sigma_inhibit": 0.20,   # 抑制ECM→TGF-β正反馈
         "gamma_inhibit": 0.15,   # 轻度抑制ECM沉积
-        "ref": "万方数据2025; 中药网络药理学分析"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM); 黄芪甲苷AS-IV靶向miR-21/PTEN/AKT/mTOR通路抗IPF(CNKI 2024)"
     },
     "danshen": {
         "name_cn": "丹参",
         "frequency": 76,        # 在136首复方中出现76次 (55.88%)
         "targets": ["PI3K", "AKT1", "MAPK1", "RELA"],
         "pathways": ["PI3K/AKT", "NF-κB", "MAPK/ERK"],
+        # ⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值
         "alpha_inhibit": 0.20,
         "sigma_inhibit": 0.10,
         "gamma_inhibit": 0.30,   # 丹参主要抑制ECM沉积
-        "ref": "万方数据2025; 中药网络药理学分析"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM); 丹酚酸B通过PI3K/AKT通路抗纤维化(Hou X, Phytomedicine 2023;121:155093)"
     },
     "gancao": {
         "name_cn": "甘草",
         "frequency": 85,        # 在136首复方中出现85次 (62.50%)
         "targets": ["RELA", "NFKB1", "TGFB1"],
         "pathways": ["NF-κB", "TGF-β/Smad"],
+        # ⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值
         "alpha_inhibit": 0.15,
         "sigma_inhibit": 0.10,
         "gamma_inhibit": 0.10,
         "eta_inhibit": 0.35,     # 甘草主要抑制炎症
-        "ref": "万方数据2025; 中药网络药理学分析"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM)"
     },
     "danggui": {
         "name_cn": "当归",
         "frequency": 58,
         "targets": ["RELA", "NFKB1", "PI3K"],
         "pathways": ["NF-κB", "PI3K/AKT"],
+        # ⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值
         "alpha_inhibit": 0.15,
         "sigma_inhibit": 0.10,
         "gamma_inhibit": 0.15,
         "eta_inhibit": 0.25,
-        "ref": "万方数据2025; 中药网络药理学分析"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM)"
     },
     "baizhu": {
         "name_cn": "白术",
         "frequency": 45,
         "targets": ["CTNNB1", "TGFB1"],
         "pathways": ["Wnt/β-catenin", "TGF-β/Smad"],
+        # ⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值
         "alpha_inhibit": 0.20,
         "sigma_inhibit": 0.15,
         "gamma_inhibit": 0.10,
-        "ref": "万方数据2025; 中药网络药理学分析"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM)"
     },
     "gusuibu": {
         "name_cn": "骨碎补",
         "frequency": 38,
         "targets": ["TGFB1", "SMAD2", "MMP9"],
         "pathways": ["TGF-β/Smad", "MMP/TIMP平衡"],
+        # ⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值
         "alpha_inhibit": 0.25,       # 抑制TGF-β驱动的增殖
         "sigma_inhibit": 0.15,       # 轻度抑制正反馈
         "gamma_inhibit": 0.10,       # 轻度抑制ECM沉积
         "delta_enhance": 0.20,       # 促进MMP9介导的ECM降解
-        "ref": "万方数据2025; 中药网络药理学分析; 骨碎补抗纤维化研究"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM); 骨碎补抗纤维化研究(内部文献)"
     },
     "chuanxiong": {
         "name_cn": "川芎",
         "frequency": 52,
         "targets": ["NFKB1", "RELA", "MAPK1", "VEGFA"],
         "pathways": ["NF-κB", "MAPK/ERK", "血管生成"],
+        # ⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值
         "alpha_inhibit": 0.20,       # 抑制成纤维细胞增殖
         "sigma_inhibit": 0.10,       # 轻度抑制正反馈
         "gamma_inhibit": 0.20,       # 抑制ECM沉积
         "eta_inhibit": 0.30,         # 抑制炎症(川芎活血化瘀)
-        "ref": "万方数据2025; 中药网络药理学分析; 川芎嗪抗纤维化研究"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM); 川芎嗪抗纤维化研究(内部文献)"
     },
     "maitong": {
         "name_cn": "麦冬",
         "frequency": 41,
         "targets": ["AKT1", "EGFR", "BCL2"],
         "pathways": ["PI3K/AKT", "细胞凋亡调控"],
+        # ⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值
         "alpha_inhibit": 0.15,       # 轻度抑制增殖
         "gamma_inhibit": 0.15,       # 抑制ECM沉积
         "beta_enhance": 0.20,        # 促进肌成纤维细胞凋亡(麦冬养阴润肺)
-        "ref": "万方数据2025; 中药网络药理学分析"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM)"
     },
     "kushen": {
         "name_cn": "苦参",
         "frequency": 33,
         "targets": ["STAT3", "JAK2", "TGFB1"],
         "pathways": ["JAK/STAT", "TGF-β/Smad"],
+        # ⚠️ 基于网络药理学靶点映射的模型参数，非直接实验值
         "alpha_inhibit": 0.30,       # 较强抑制增殖(苦参碱抗纤维化)
         "sigma_inhibit": 0.20,       # 抑制正反馈
         "gamma_inhibit": 0.15,       # 抑制ECM沉积
         "eta_inhibit": 0.20,         # 抑制炎症
-        "ref": "万方数据2025; 苦参碱抗肺纤维化研究; 中药网络药理学分析"
+        "ref": "万方数据2025(频次); 网络药理学分析(TCMSP/BatMan-TCM); 苦参碱靶向JAK2/STAT3通路抗纤维化(Chin Med 2024)"
     },
     # --- 西药对照 ---
     "nintedanib": {
@@ -324,7 +338,7 @@ DRUG_INTERVENTION = {
         "alpha_inhibit": 0.40,
         "gamma_inhibit": 0.30,
         "sigma_inhibit": 0.20,
-        "FVC_decline_treated": 114.1,  # mL/年 (INPULSIS试验 [Ref.15])
+        "FVC_decline_treated": 114.7,  # mL/年 (INPULSIS-1试验 [Ref.15])
         "ref": "INPULSIS Trial, Richeldi et al. NEJM 2014 [Ref.15]"
     },
     "pirfenidone": {
@@ -397,13 +411,13 @@ COUPLING = {
 
 REFERENCES = {
     1:  "Suki B, Bates JHT. Mathematical Modeling of the Healthy and Diseased Lung. Springer 2024. ISBN: 978-3-031-53202-3",
-    2:  "Zhou X, et al. Digital twins of ex vivo human lungs enable accurate evaluation of therapeutic efficacy. Nat Biotechnol 2026 (已接收/在线首发)",
+    2:  "Zhou X, Wang B, Wei Y, et al. Digital twins of ex vivo human lungs enable accurate and personalized evaluation of therapeutic efficacy. Nat Biotechnol 2026. doi:10.1038/s41587-026-03121-4",
     7:  "Martinez FJ, et al. Idiopathic pulmonary fibrosis. Nat Rev Dis Primers 2017;3:17074. doi:10.1038/nrdp.2017.74",
     8:  "Ye Z & Hu Y. TGF-β1 in idiopathic pulmonary fibrosis. Int J Mol Med 2021;48:132. doi:10.3892/ijmm.2021.4950",
     9:  "Zhao R, et al. Sustained amphiregulin expression drives progressive lung fibrosis. Cell Stem Cell 2024;31(4). doi:10.1016/j.stem.2024.02.013",
     10: "YAP/TAZ机械转导恶性循环: 多篇文献支持 — (a) Singh MK, et al. Eur Respir J 2025 (YAP/TAZ调控巨噬细胞介导肺纤维化); (b) Liu F, et al. J Clin Invest 2024; (c) Nature Rev Mol Cell Biol 2024 (YAP/TAZ mechanobiology综述). IPF肺刚度6-7倍: Liu F, et al. Am J Physiol Lung Cell Mol Physiol 2016;311(1):L52-63",
-    11: "Nature空间转录组学 2025 — Csmd1+分泌型/Cd248+修复型成纤维细胞亚型 (需补充具体DOI)",
-    12: "左为团队 Science Advances 2026 — TGF-β梯度双角色与iBMP7工程化基底细胞 (需补充具体DOI)",
+    11: "Longaker MT团队. Histological signatures map anti-fibrotic factors in mouse and human lungs. Nature 2025. doi:10.1038/s41586-025-08727-3 (Csmd1+分泌型/Cd248+修复型成纤维细胞亚型)",
+    12: "Zou T, Zhang S, Liu M, et al. Control of airway basal stem cell–mediated lung repair by TGF-β signaling. Science Advances 2026;12(2):eadz1519. doi:10.1126/sciadv.adz1519 (左为团队, TGF-β梯度双角色+iBMP7工程化基底细胞)",
     13: "Koeppen BM, Stanton BA. Berne & Levy Physiology, 8th Edition. Elsevier 2024. ISBN: 978-0-323-87804-0",
     14: "West JB, Luks AM. West's Respiratory Physiology: The Essentials, 11th Edition. Wolters Kluwer 2021. ISBN: 978-1975155985",
     15: "Richeldi L, et al. Efficacy and safety of nintedanib in IPF (INPULSIS). NEJM 2014;370:2071-2082. doi:10.1056/NEJMoa1402584",

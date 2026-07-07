@@ -4,8 +4,9 @@ FVC年下降率仿真 + 临床数据对比
 将数字孪生模型的输出映射为FVC年下降率，并与INPULSIS和ASCEND临床试验数据对比验证。
 
 临床数据来源:
-  - INPULSIS: 安慰剂 239.9 mL/yr, 尼达尼布 114.1 mL/yr [Ref.15]
-  - ASCEND: 安慰剂 ~192.7 mL/yr, 吡非尼酮 ~131.2 mL/yr [King et al. NEJM 2014]
+  - INPULSIS-1: 安慰剂 239.9 mL/yr, 尼达尼布 114.7 mL/yr [Ref.15]
+  - INPULSIS-2: 安慰剂 207.3 mL/yr, 尼达尼布 113.6 mL/yr [Ref.15]
+  - ASCEND: 吡非尼酮显著减缓FVC%pred下降 (主要终点), 非绝对mL值 [Ref.15b]
 
 映射原理:
   FVC(mL) = FVC_baseline - k * ECM_progression_rate * t
@@ -44,32 +45,32 @@ class FVCSimulator:
         self.clinical_data = {
             "placebo": {
                 "name": "安慰剂",
-                "FVC_decline": 239.9,  # mL/yr [Ref.15 INPULSIS]
-                "source": "INPULSIS Trial, Richeldi et al. NEJM 2014",
-                "n": 431,
+                "FVC_decline": 239.9,  # mL/yr [Ref.15 INPULSIS-1安慰剂组]
+                "source": "INPULSIS-1 Trial, Richeldi et al. NEJM 2014",
+                "n": 204,           # INPULSIS-1安慰剂组
                 "color": "#9E9E9E",
             },
             "nintedanib": {
                 "name": "尼达尼布",
-                "FVC_decline": 114.1,  # mL/yr [Ref.15 INPULSIS]
-                "source": "INPULSIS Trial, Richeldi et al. NEJM 2014",
-                "n": 638,
+                "FVC_decline": 114.7,  # mL/yr [Ref.15 INPULSIS-1尼达尼布组]
+                "source": "INPULSIS-1 Trial, Richeldi et al. NEJM 2014",
+                "n": 309,           # INPULSIS-1尼达尼布组
                 "color": "#9C27B0",
             },
             "pirfenidone": {
                 "name": "吡非尼酮",
-                "FVC_decline": 131.2,  # mL/yr [ASCEND]
-                "source": "ASCEND Trial, King et al. NEJM 2014",
+                "FVC_decline": None,  # ASCEND以FVC%pred为主要终点，非绝对mL值 [Ref.15b]
+                "source": "ASCEND Trial, King TE Jr et al. NEJM 2014",
                 "n": 278,
                 "color": "#E91E63",
             },
         }
         
-        # 中药组临床参考 (基于专利复方和文献综述的估算)
+        # 中药组临床参考 (⚠️ 基于网络药理学靶点映射的模型推算值，非直接临床试验数据)
         self.tcm_clinical_estimate = {
-            "huangqi": {"FVC_decline": 160.0, "source": "基于TGF-β抑制效应估算"},
-            "danshen": {"FVC_decline": 170.0, "source": "基于PI3K/AKT抑制效应估算"},
-            "combo": {"FVC_decline": 140.0, "source": "基于联合用药协同效应估算"},
+            "huangqi": {"FVC_decline": 160.0, "source": "基于TGF-β/Smad通路抑制效应的模型推算 (非直接临床值)"},
+            "danshen": {"FVC_decline": 170.0, "source": "基于PI3K/AKT通路抑制效应的模型推算 (非直接临床值)"},
+            "combo": {"FVC_decline": 140.0, "source": "基于联合用药协同效应的模型推算 (非直接临床值)"},
         }
 
     def simulate_fvc(self, drug_id=None, t_span=(0, 4), t_eval_points=200, dose=1.0):
@@ -191,8 +192,8 @@ class FVCSimulator:
         # 基于INPULSIS周数据简化: 52周FVC变化
         ax1.scatter([1], [self.FVC_baseline - 239.9], color="#9E9E9E", s=100, zorder=5,
                     marker="o", edgecolors="black", linewidth=1.5, label="临床-安慰剂 (INPULSIS)")
-        ax1.scatter([1], [self.FVC_baseline - 114.1], color="#9C27B0", s=100, zorder=5,
-                    marker="s", edgecolors="black", linewidth=1.5, label="临床-尼达尼布 (INPULSIS)")
+        ax1.scatter([1], [self.FVC_baseline - 114.7], color="#9C27B0", s=100, zorder=5,
+                    marker="s", edgecolors="black", linewidth=1.5, label="临床-尼达尼布 (INPULSIS-1)")
         
         ax1.axhline(y=self.FVC_baseline, color="gray", linestyle=":", alpha=0.5, label="基线FVC")
         ax1.set_xlabel("时间 (年)", fontsize=12)
@@ -220,7 +221,7 @@ class FVCSimulator:
         # 临床数据点 (占预计值)
         ax2.scatter([1], [(self.FVC_baseline - 239.9)/self.FVC_predicted*100], color="#9E9E9E",
                     s=100, zorder=5, marker="o", edgecolors="black", linewidth=1.5)
-        ax2.scatter([1], [(self.FVC_baseline - 114.1)/self.FVC_predicted*100], color="#9C27B0",
+        ax2.scatter([1], [(self.FVC_baseline - 114.7)/self.FVC_predicted*100], color="#9C27B0",
                     s=100, zorder=5, marker="s", edgecolors="black", linewidth=1.5)
         
         ax2.set_xlabel("时间 (年)", fontsize=12)
@@ -266,8 +267,11 @@ class FVCSimulator:
         # 吡非尼酮
         r_pi = self.simulate_fvc(drug_id="pirfenidone", t_span=(0, 1))
         clinical_pi = self.clinical_data["pirfenidone"]
-        error_pi = abs(r_pi["fvc_decline_rate"] - clinical_pi["FVC_decline"])
-        table += f"| 吡非尼酮 | {r_pi['fvc_decline_rate']:.1f} | {clinical_pi['FVC_decline']:.1f} | {clinical_pi['source']} | {error_pi:.1f} |\n"
+        if clinical_pi["FVC_decline"] is not None:
+            error_pi = abs(r_pi["fvc_decline_rate"] - clinical_pi["FVC_decline"])
+            table += f"| 吡非尼酮 | {r_pi['fvc_decline_rate']:.1f} | {clinical_pi['FVC_decline']:.1f} | {clinical_pi['source']} | {error_pi:.1f} |\n"
+        else:
+            table += f"| 吡非尼酮 | {r_pi['fvc_decline_rate']:.1f} | N/A (ASCEND以%pred为终点) | {clinical_pi['source']} | — |\n"
         
         table += """
 **验证结论**: 模型FVC下降率与临床试验数据趋势一致。

@@ -10,6 +10,7 @@
 4. 参数相关性热力图: 展示参数间相互作用
 
 所有参数来自config.py, 基于真实文献数据。
+中药相关参数(alpha_inhibit等)为网络药理学靶点映射推算值，非直接实验测量值。
 AI Generated: created with DuMate assistance
 """
 
